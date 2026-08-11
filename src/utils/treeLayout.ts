@@ -75,3 +75,61 @@ export function getGenerations(family: FamilyTree): Generation[] {
       people,
     }))
 }
+
+export type FamilyUnit = {
+  people: Person[]
+}
+
+export function getFamilyUnits(
+  family: FamilyTree,
+  generationPeople: Person[]
+): FamilyUnit[] {
+  const partnerRelationships = family.relationships.filter(
+    (relationship) => relationship.type === 'partner'
+  )
+
+  const used = new Set<string>()
+  const units: FamilyUnit[] = []
+
+  generationPeople.forEach((person) => {
+    if (used.has(person.id)) {
+      return
+    }
+
+    const partnerRelationship = partnerRelationships.find(
+      (relationship) =>
+        relationship.personAId === person.id ||
+        relationship.personBId === person.id
+    )
+
+    if (partnerRelationship) {
+      const partnerId =
+        partnerRelationship.personAId === person.id
+          ? partnerRelationship.personBId
+          : partnerRelationship.personAId
+
+      const partner = generationPeople.find(
+        (candidate) => candidate.id === partnerId
+      )
+
+      if (partner) {
+        units.push({
+          people: [person, partner],
+        })
+
+        used.add(person.id)
+        used.add(partner.id)
+
+        return
+      }
+    }
+
+    units.push({
+      people: [person],
+    })
+
+    used.add(person.id)
+  })
+
+  return units
+}

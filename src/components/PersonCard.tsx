@@ -6,10 +6,14 @@ type PersonCardProps = {
 
 function PersonCard({ person }: PersonCardProps) {
   return (
-    <article>
-      <h2>
+    <article className="person-card">
+      <div className="person-avatar">
+        {person.firstName.charAt(0)}
+      </div>
+
+      <h3>
         {person.firstName} {person.lastName}
-      </h2>
+      </h3>
     </article>
   )
 }
