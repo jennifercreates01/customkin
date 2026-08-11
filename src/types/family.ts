@@ -12,6 +12,11 @@ export type Person = {
 export type RelationshipType =
   | 'parent'
   | 'partner'
+
+export type BuilderRelationshipType =
+  | 'parent'
+  | 'partner'
+  | 'child'
   | 'sibling'
 
 export type Relationship = {
