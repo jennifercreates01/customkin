@@ -2,22 +2,27 @@ import type { Edge, Node } from '@xyflow/react'
 import type { FamilyTree } from '../types/family'
 import { getUnions } from './familyUnits'
 
+const NODE_WIDTH = 180
+const NODE_HEIGHT = 120
+
 export type FamilyConnections = {
-  junctionNodes: Node[]
-  familyEdges: Edge[]
+  unionNodes: Node[]
+  unionEdges: Edge[]
+  childEdges: Edge[]
 }
 
 export function buildFamilyConnections(
   family: FamilyTree,
   personNodes: Node[]
 ): FamilyConnections {
-  const junctionNodes: Node[] = []
-  const familyEdges: Edge[] = []
+  const unionNodes: Node[] = []
+  const unionEdges: Edge[] = []
+  const childEdges: Edge[] = []
 
   const unions = getUnions(family)
 
   unions.forEach((union) => {
-    if (union.partners.length !== 2 || union.children.length === 0) {
+    if (union.partners.length !== 2) {
       return
     }
 
@@ -35,61 +40,71 @@ export function buildFamilyConnections(
       return
     }
 
-    const junctionId = `junction-${union.id}`
+    const leftNode =
+      personA.position.x <= personB.position.x
+        ? personA
+        : personB
 
-  const NODE_WIDTH = 180
-const NODE_HEIGHT = 120
+    const rightNode =
+      personA.position.x <= personB.position.x
+        ? personB
+        : personA
 
-const junctionX =
-  (personA.position.x + personB.position.x + NODE_WIDTH) / 2
+    const leftHandleX =
+      leftNode.position.x + NODE_WIDTH
 
-const junctionY =
-  personA.position.y + NODE_HEIGHT / 2
+    const rightHandleX =
+      rightNode.position.x
 
-    junctionNodes.push({
-      id: junctionId,
-      type: 'junction',
-      position: {
-        x: junctionX,
-        y: junctionY,
-      },
-      data: {},
-      draggable: false,
-      selectable: false,
-    })
+    const unionX =
+      (leftHandleX + rightHandleX) / 2
 
-    familyEdges.push({
-      id: `${junctionId}-partner-a`,
-      source: personA.id,
-      target: junctionId,
+    const unionY =
+      leftNode.position.y + NODE_HEIGHT / 2
+
+    const unionNodeId = `${union.id}-node`
+unionNodes.push({
+  id: unionNodeId,
+  type: 'unionPoint',
+
+  position: {
+    x: unionX - 1,
+    y: unionY - 1,
+  },
+
+  width: 2,
+  height: 2,
+
+  data: {},
+
+  draggable: false,
+  selectable: false,
+})
+
+    unionEdges.push({
+      id: `${union.id}-partners`,
+      source: leftNode.id,
+      target: rightNode.id,
       sourceHandle: 'partner-right',
-      targetHandle: 'junction-left',
-      type: 'straight',
-    })
-
-    familyEdges.push({
-      id: `${junctionId}-partner-b`,
-      source: personB.id,
-      target: junctionId,
-      sourceHandle: 'partner-left',
-      targetHandle: 'junction-right',
-      type: 'straight',
+      targetHandle: 'partner-left',
+      type: 'union',
     })
 
     union.children.forEach((child) => {
-      familyEdges.push({
-        id: `${junctionId}-${child.id}`,
-        source: junctionId,
+      childEdges.push({
+        id: `${union.id}-${child.id}`,
+        source: unionNodeId,
         target: child.id,
-        sourceHandle: 'junction-source',
+        sourceHandle: 'union-source',
         targetHandle: 'parent-target',
-        type: 'step',
+        type: 'family',
       })
     })
   })
 
   return {
-    junctionNodes,
-    familyEdges,
+    unionNodes,
+    unionEdges,
+    childEdges,
   }
 }

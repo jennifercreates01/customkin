@@ -10,8 +10,10 @@ import '@xyflow/react/dist/style.css'
 import type { FamilyTree } from '../types/family'
 import { buildFamilyConnections } from '../utils/buildFamilyConnections'
 import { layoutFamilyGraph } from '../utils/layoutFamilyGraph'
-import JunctionNode from './JunctionNode'
+import FamilyEdge from './FamilyEdge'
 import PersonNode from './PersonNode'
+import UnionEdge from './UnionEdge'
+import UnionPointNode from './UnionPointNode'
 
 type TreeCanvasProps = {
   family: FamilyTree
@@ -19,29 +21,32 @@ type TreeCanvasProps = {
 
 const nodeTypes: NodeTypes = {
   person: PersonNode,
-  junction: JunctionNode,
+  unionPoint: UnionPointNode,
+}
+
+const edgeTypes = {
+  union: UnionEdge,
+  family: FamilyEdge,
 }
 
 function TreeCanvas({ family }: TreeCanvasProps) {
-
-
   const personNodes = layoutFamilyGraph(family)
 
   const {
-    junctionNodes,
-    familyEdges,
+    unionNodes,
+    unionEdges,
+    childEdges,
   } = buildFamilyConnections(family, personNodes)
-
-
 
   const nodes = [
     ...personNodes,
-    ...junctionNodes,
+    ...unionNodes,
   ]
 
-const edges = [
-  ...familyEdges,
-]
+  const edges = [
+    ...unionEdges,
+    ...childEdges,
+  ]
 
   return (
     <div className="flow-wrapper">
@@ -49,6 +54,7 @@ const edges = [
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
         minZoom={0.2}
         maxZoom={1.5}

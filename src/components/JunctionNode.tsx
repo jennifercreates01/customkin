@@ -5,26 +5,50 @@ import {
 
 function JunctionNode() {
   return (
-    <div className="junction-node">
+    <div
+      style={{
+        width: 0,
+        height: 0,
+        position: 'relative',
+      }}
+    >
       <Handle
         id="junction-left"
         type="target"
         position={Position.Left}
-        className="junction-handle"
+        style={{
+          width: 1,
+          height: 1,
+          minWidth: 0,
+          minHeight: 0,
+          opacity: 0,
+        }}
       />
 
       <Handle
         id="junction-right"
         type="target"
         position={Position.Right}
-        className="junction-handle"
+        style={{
+          width: 1,
+          height: 1,
+          minWidth: 0,
+          minHeight: 0,
+          opacity: 0,
+        }}
       />
 
       <Handle
         id="junction-source"
         type="source"
         position={Position.Bottom}
-        className="junction-handle"
+        style={{
+          width: 1,
+          height: 1,
+          minWidth: 0,
+          minHeight: 0,
+          opacity: 0,
+        }}
       />
     </div>
   )
