@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
+import customKinLogo from '../assets/logos/customkin-navbar-logo.png'
 
 function Navbar() {
   return (
@@ -7,11 +8,19 @@ function Navbar() {
         <Link
           to="/"
           className="site-brand"
+          aria-label="CustomKin home"
         >
-          CustomKin<span>.</span>
+          <img
+            src={customKinLogo}
+            alt="CustomKin"
+            className="site-brand-logo"
+          />
         </Link>
 
-        <nav className="site-nav-links">
+        <nav
+          className="site-nav-links"
+          aria-label="Main navigation"
+        >
           <NavLink to="/">
             Home
           </NavLink>
