@@ -3,6 +3,10 @@ import {
   type EdgeProps,
 } from '@xyflow/react'
 
+type FamilyEdgeData = {
+  lineColor?: string
+}
+
 function FamilyEdge({
   id,
   sourceX,
@@ -10,7 +14,10 @@ function FamilyEdge({
   targetX,
   targetY,
   style,
+  data,
 }: EdgeProps) {
+  const edgeData = data as FamilyEdgeData | undefined
+
   const branchY =
     sourceY + (targetY - sourceY) * 0.45
 
@@ -25,7 +32,10 @@ function FamilyEdge({
     <BaseEdge
       id={id}
       path={path}
-      style={style}
+      style={{
+        ...style,
+        stroke: edgeData?.lineColor ?? '#877b73',
+      }}
     />
   )
 }

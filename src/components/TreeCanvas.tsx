@@ -15,10 +15,14 @@ import FamilyEdge from './FamilyEdge'
 import PersonNode from './PersonNode'
 import UnionEdge from './UnionEdge'
 import UnionPointNode from './UnionPointNode'
+import { themes } from '../data/themes'
+import type { ThemeId } from '../types/theme'
 
 type TreeCanvasProps = {
   family: FamilyTree
   onSelectPerson: (person: Person) => void
+  themeId: ThemeId
+  
 }
 
 const nodeTypes: NodeTypes = {
@@ -34,8 +38,19 @@ const edgeTypes = {
 function TreeCanvas({
   family,
   onSelectPerson,
+  themeId,
 }: TreeCanvasProps) {
-  const personNodes = layoutFamilyGraph(family)
+  const selectedTheme =
+    themes.find((theme) => theme.id === themeId) ??
+    themes[0]
+
+ const personNodes = layoutFamilyGraph(family).map((node) => ({
+  ...node,
+  data: {
+    ...node.data,
+    theme: selectedTheme,
+  },
+}))
 
   const {
     unionNodes,
@@ -49,9 +64,16 @@ function TreeCanvas({
   ]
 
   const edges = [
-    ...unionEdges,
-    ...childEdges,
-  ]
+  ...unionEdges,
+  ...childEdges,
+].map((edge) => ({
+  ...edge,
+
+  data: {
+    ...edge.data,
+    lineColor: selectedTheme.lineColor,
+  },
+}))
 
   const handleNodeClick: NodeMouseHandler = (
     _event,
@@ -71,7 +93,12 @@ function TreeCanvas({
   }
 
   return (
-    <div className="flow-wrapper">
+    <div
+  className="flow-wrapper"
+  style={{
+    background: selectedTheme.canvasBackground,
+  }}
+>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -82,7 +109,10 @@ function TreeCanvas({
         minZoom={0.2}
         maxZoom={1.5}
       >
-        <Background />
+        <Background
+  color={selectedTheme.cardBorder}
+  gap={20}
+/>
         <Controls />
       </ReactFlow>
     </div>

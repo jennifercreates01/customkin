@@ -1,0 +1,48 @@
+import type { CustomKinTheme } from '../types/theme'
+
+export const themes: CustomKinTheme[] = [
+  {
+    id: 'modern',
+    name: 'Modern',
+    description: 'Clean, minimal, and timeless.',
+    canvasBackground: '#ffffff',
+    cardBackground: '#ffffff',
+    cardBorder: '#ddd8d2',
+    textColor: '#24211f',
+    accentColor: '#7c5cff',
+    lineColor: '#8c8781',
+  },
+  {
+    id: 'floral',
+    name: 'Floral',
+    description: 'Soft and romantic with botanical styling.',
+    canvasBackground: '#fffaf8',
+    cardBackground: '#ffffff',
+    cardBorder: '#e5d8d4',
+    textColor: '#403834',
+    accentColor: '#8f6c7a',
+    lineColor: '#aa959d',
+  },
+  {
+    id: 'farmhouse',
+    name: 'Farmhouse',
+    description: 'Warm, rustic, and family-centered.',
+    canvasBackground: '#f8f4ec',
+    cardBackground: '#fffdf8',
+    cardBorder: '#d7cbb9',
+    textColor: '#3e382f',
+    accentColor: '#806f56',
+    lineColor: '#938773',
+  },
+  {
+    id: 'elegant',
+    name: 'Elegant',
+    description: 'Refined and formal for heirloom-style trees.',
+    canvasBackground: '#fbfaf8',
+    cardBackground: '#ffffff',
+    cardBorder: '#d8d2cb',
+    textColor: '#292522',
+    accentColor: '#76665d',
+    lineColor: '#877b73',
+  },
+]

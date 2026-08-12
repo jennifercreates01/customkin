@@ -3,6 +3,10 @@ import {
   type EdgeProps,
 } from '@xyflow/react'
 
+type UnionEdgeData = {
+  lineColor?: string
+}
+
 function UnionEdge({
   id,
   sourceX,
@@ -10,7 +14,10 @@ function UnionEdge({
   targetX,
   targetY,
   style,
+  data,
 }: EdgeProps) {
+  const edgeData = data as UnionEdgeData | undefined
+
   const centerX = (sourceX + targetX) / 2
   const centerY = (sourceY + targetY) / 2
 
@@ -24,7 +31,10 @@ function UnionEdge({
     <BaseEdge
       id={id}
       path={path}
-      style={style}
+      style={{
+        ...style,
+        stroke: edgeData?.lineColor ?? '#877b73',
+      }}
     />
   )
 }

@@ -4,16 +4,27 @@ import {
   type NodeProps,
 } from '@xyflow/react'
 
+import type { CustomKinTheme } from '../types/theme'
+
 type PersonNodeData = {
   label: string
   firstName: string
+  theme: CustomKinTheme
 }
 
 function PersonNode({ data }: NodeProps) {
   const personData = data as PersonNodeData
+  const theme = personData.theme
 
   return (
-    <div className="flow-person-card">
+    <div
+      className="flow-person-card"
+      style={{
+        background: theme.cardBackground,
+        borderColor: theme.cardBorder,
+        color: theme.textColor,
+      }}
+    >
       <Handle
         id="parent-target"
         type="target"
@@ -28,7 +39,13 @@ function PersonNode({ data }: NodeProps) {
         className="person-handle"
       />
 
-      <div className="flow-person-avatar">
+      <div
+        className="flow-person-avatar"
+        style={{
+          background: theme.accentColor,
+          color: '#ffffff',
+        }}
+      >
         {personData.firstName.charAt(0)}
       </div>
 

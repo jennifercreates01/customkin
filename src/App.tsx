@@ -1,245 +1,27 @@
-import { useEffect, useState } from 'react'
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+} from 'react-router-dom'
 
-import AddRelativePanel from './components/AddRelativePanel'
-import FamilyTree from './components/FamilyTree'
-import PersonPanel from './components/PersonPanel'
-import TreeCanvas from './components/TreeCanvas'
-import { sampleFamily } from './data/sampleFamily'
-import type {
-  BuilderRelationshipType,
-  FamilyTree as FamilyTreeType,
-  Person,
-  Relationship,
-} from './types/family'
-import EditPersonPanel from './components/EditPersonPanel'
-
+import BuilderPage from './pages/BuilderPage'
+import HomePage from './pages/HomePage'
 
 function App() {
-const [family, setFamily] = useState<FamilyTreeType>(() => {
-  const savedFamily = localStorage.getItem('customkin-family')
-
-  if (savedFamily) {
-    try {
-      return JSON.parse(savedFamily) as FamilyTreeType
-    } catch {
-      localStorage.removeItem('customkin-family')
-    }
-  }
-
-  return sampleFamily
-})
-
-  const [selectedPerson, setSelectedPerson] =
-    useState<Person | null>(null)
-
-  const [isAddingRelative, setIsAddingRelative] =
-    useState(false)
-    const [isEditingPerson, setIsEditingPerson] =
-  useState(false)
-  useEffect(() => {
-  localStorage.setItem(
-    'customkin-family',
-    JSON.stringify(family)
-  )
-}, [family])
-
- const handleSelectPerson = (person: Person) => {
-  setSelectedPerson(person)
-  setIsAddingRelative(false)
-  setIsEditingPerson(false)
-}
-
-  const handleAddRelative = (relative: {
-    firstName: string
-    lastName: string
-    relationshipType: BuilderRelationshipType
-  }) => {
-    if (!selectedPerson) {
-      return
-    }
-
-    const newPersonId = `person-${crypto.randomUUID()}`
-
-    const newPerson: Person = {
-      id: newPersonId,
-      firstName: relative.firstName,
-      lastName: relative.lastName || undefined,
-    }
-
-    setFamily((currentFamily) => {
-      const newRelationships: Relationship[] = []
-
-      if (relative.relationshipType === 'parent') {
-        newRelationships.push({
-          id: `relationship-${crypto.randomUUID()}`,
-          personAId: newPersonId,
-          personBId: selectedPerson.id,
-          type: 'parent',
-        })
-      }
-
-      if (relative.relationshipType === 'child') {
-        newRelationships.push({
-          id: `relationship-${crypto.randomUUID()}`,
-          personAId: selectedPerson.id,
-          personBId: newPersonId,
-          type: 'parent',
-        })
-      }
-
-      if (relative.relationshipType === 'partner') {
-        newRelationships.push({
-          id: `relationship-${crypto.randomUUID()}`,
-          personAId: selectedPerson.id,
-          personBId: newPersonId,
-          type: 'partner',
-        })
-      }
-
-      if (relative.relationshipType === 'sibling') {
-        const selectedPersonParents =
-          currentFamily.relationships.filter(
-            (relationship) =>
-              relationship.type === 'parent' &&
-              relationship.personBId === selectedPerson.id
-          )
-
-        selectedPersonParents.forEach((parentRelationship) => {
-          newRelationships.push({
-            id: `relationship-${crypto.randomUUID()}`,
-            personAId: parentRelationship.personAId,
-            personBId: newPersonId,
-            type: 'parent',
-          })
-        })
-      }
-
-      return {
-        ...currentFamily,
-        people: [...currentFamily.people, newPerson],
-        relationships: [
-          ...currentFamily.relationships,
-          ...newRelationships,
-        ],
-      }
-    })
-
-    setIsAddingRelative(false)
-  }
-const handleSavePerson = (updatedPerson: Person) => {
-  setFamily((currentFamily) => ({
-    ...currentFamily,
-    people: currentFamily.people.map((person) =>
-      person.id === updatedPerson.id
-        ? updatedPerson
-        : person
-    ),
-  }))
-
-  setSelectedPerson(updatedPerson)
-  setIsEditingPerson(false)
-}
-const handleDeletePerson = () => {
-  if (!selectedPerson) {
-    return
-  }
-
-  const shouldDelete = window.confirm(
-    `Delete ${selectedPerson.firstName} ${
-      selectedPerson.lastName ?? ''
-    } from this family tree?`
-  )
-
-  if (!shouldDelete) {
-    return
-  }
-
-  setFamily((currentFamily) => ({
-    ...currentFamily,
-
-    people: currentFamily.people.filter(
-      (person) => person.id !== selectedPerson.id
-    ),
-
-    relationships: currentFamily.relationships.filter(
-      (relationship) =>
-        relationship.personAId !== selectedPerson.id &&
-        relationship.personBId !== selectedPerson.id
-    ),
-  }))
-
-  setSelectedPerson(null)
-  setIsAddingRelative(false)
-  setIsEditingPerson(false)
-}
-
-const handleResetFamily = () => {
-  const shouldReset = window.confirm(
-    'Reset the family tree back to the sample family?'
-  )
-
-  if (!shouldReset) {
-    return
-  }
-
-  localStorage.removeItem('customkin-family')
-
-  setFamily(sampleFamily)
-  setSelectedPerson(null)
-  setIsAddingRelative(false)
-  setIsEditingPerson(false)
-}
-  const handleClosePanels = () => {
-    setSelectedPerson(null)
-    setIsAddingRelative(false)
-    setIsEditingPerson(false)
-  }
-
   return (
-    <main>
-    <h1>CustomKin</h1>
-<p>Build your family. Make it yours.</p>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={<HomePage />}
+        />
 
-<button
-  type="button"
-  onClick={handleResetFamily}
->
-  Reset Sample Family
-</button>
-
-<TreeCanvas
-  family={family}
-  onSelectPerson={handleSelectPerson}
-/>
-
-
-   {!isAddingRelative && !isEditingPerson && (
-  <PersonPanel
-    person={selectedPerson}
-    onAddRelative={() => setIsAddingRelative(true)}
-    onEditPerson={() => setIsEditingPerson(true)}
- onDeletePerson={handleDeletePerson}
-    onClose={handleClosePanels}
-  />
-)}
-
-{isAddingRelative && (
-  <AddRelativePanel
-    selectedPerson={selectedPerson}
-    onAddRelative={handleAddRelative}
-    onClose={() => setIsAddingRelative(false)}
-  />
-)}
-
-{isEditingPerson && (
-  <EditPersonPanel
-    person={selectedPerson}
-    onSave={handleSavePerson}
-    onClose={() => setIsEditingPerson(false)}
-  />
-)}
-      <FamilyTree family={family} />
-    </main>
+        <Route
+          path="/builder"
+          element={<BuilderPage />}
+        />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
