@@ -3,13 +3,35 @@ import type { FamilyTree } from '../types/family'
 import { getGenerations } from './treeLayout'
 import { getUnions } from './familyUnits'
 
-const NODE_WIDTH = 180
-const NODE_HEIGHT = 120
-const PARTNER_GAP = 40
-const ROOT_UNIT_GAP = 180
-const GENERATION_GAP = 230
+type LayoutOptions = {
+  nodeWidth?: number
+  nodeHeight?: number
+  partnerGap?: number
+  rootUnitGap?: number
+  generationGap?: number
+  childSpacing?: number
+  rootWidth?: number
+}
 
-export function layoutFamilyGraph(family: FamilyTree): Node[] {
+const DEFAULT_LAYOUT = {
+  nodeWidth: 180,
+  nodeHeight: 120,
+  partnerGap: 40,
+  rootUnitGap: 180,
+  generationGap: 230,
+  childSpacing: 320,
+  rootWidth: 520,
+}
+
+export function layoutFamilyGraph(
+  family: FamilyTree,
+  options: LayoutOptions = {}
+): Node[] {
+  const layout = {
+    ...DEFAULT_LAYOUT,
+    ...options,
+  }
+
   const generations = getGenerations(family)
   const unions = getUnions(family)
 
@@ -17,7 +39,10 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
 
   generations.forEach((generation) => {
     generation.people.forEach((person) => {
-      generationByPersonId.set(person.id, generation.level)
+      generationByPersonId.set(
+        person.id,
+        generation.level
+      )
     })
   })
 
@@ -31,20 +56,25 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
 
   const getPartnerUnion = (personId: string) => {
     return unions.find((union) =>
-      union.partners.some((partner) => partner.id === personId)
+      union.partners.some(
+        (partner) => partner.id === personId
+      )
     )
   }
 
   const getParentUnion = (personId: string) => {
     return unions.find((union) =>
-      union.children.some((child) => child.id === personId)
+      union.children.some(
+        (child) => child.id === personId
+      )
     )
   }
 
   const getRootUnions = () => {
     return unions.filter((union) => {
       return union.partners.every(
-        (partner) => getParentUnion(partner.id) === undefined
+        (partner) =>
+          getParentUnion(partner.id) === undefined
       )
     })
   }
@@ -56,19 +86,22 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
     generation: number
   ) => {
     const coupleWidth =
-      NODE_WIDTH * 2 + PARTNER_GAP
+      layout.nodeWidth * 2 + layout.partnerGap
 
     const leftX =
       centerX - coupleWidth / 2
 
     positions.set(leftPersonId, {
       x: leftX,
-      y: generation * GENERATION_GAP,
+      y: generation * layout.generationGap,
     })
 
     positions.set(rightPersonId, {
-      x: leftX + NODE_WIDTH + PARTNER_GAP,
-      y: generation * GENERATION_GAP,
+      x:
+        leftX +
+        layout.nodeWidth +
+        layout.partnerGap,
+      y: generation * layout.generationGap,
     })
   }
 
@@ -78,8 +111,8 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
     generation: number
   ) => {
     positions.set(personId, {
-      x: centerX - NODE_WIDTH / 2,
-      y: generation * GENERATION_GAP,
+      x: centerX - layout.nodeWidth / 2,
+      y: generation * layout.generationGap,
     })
   }
 
@@ -101,10 +134,9 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
       return
     }
 
-    const childSpacing = 320
-
     const totalChildrenWidth =
-      (children.length - 1) * childSpacing
+      (children.length - 1) *
+      layout.childSpacing
 
     children.forEach((child, index) => {
       const generation =
@@ -113,7 +145,7 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
       const childCenterX =
         centerX -
         totalChildrenWidth / 2 +
-        index * childSpacing
+        index * layout.childSpacing
 
       const partnerUnion =
         getPartnerUnion(child.id)
@@ -122,9 +154,11 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
         partnerUnion &&
         partnerUnion.partners.length === 2
       ) {
-        const partner = partnerUnion.partners.find(
-          (candidate) => candidate.id !== child.id
-        )
+        const partner =
+          partnerUnion.partners.find(
+            (candidate) =>
+              candidate.id !== child.id
+          )
 
         if (partner) {
           placeCouple(
@@ -153,8 +187,6 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
 
   const rootUnions = getRootUnions()
 
-  const rootWidth = 520
-
   rootUnions.forEach((union, index) => {
     if (union.partners.length !== 2) {
       return
@@ -164,7 +196,8 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
       union.partners
 
     const centerX =
-      index * (rootWidth + ROOT_UNIT_GAP)
+      index *
+      (layout.rootWidth + layout.rootUnitGap)
 
     const generation =
       generationByPersonId.get(partnerA.id) ?? 0
@@ -191,11 +224,11 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
       generationByPersonId.get(person.id) ?? 0
 
     const fallbackX =
-      positions.size * (NODE_WIDTH + 60)
+      positions.size * (layout.nodeWidth + 60)
 
     positions.set(person.id, {
       x: fallbackX,
-      y: generation * GENERATION_GAP,
+      y: generation * layout.generationGap,
     })
   })
 
@@ -212,8 +245,8 @@ export function layoutFamilyGraph(family: FamilyTree): Node[] {
 
       position,
 
-      width: NODE_WIDTH,
-      height: NODE_HEIGHT,
+      width: layout.nodeWidth,
+      height: layout.nodeHeight,
 
       data: {
         label: `${person.firstName} ${

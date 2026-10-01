@@ -2,7 +2,7 @@ import type { FamilyTree } from '../types/family'
 
 export const sampleFamily: FamilyTree = {
   id: 'family-1',
-  title: 'Sample Family',
+  title: 'The Carter Family',
   theme: 'modern',
 
   people: [
