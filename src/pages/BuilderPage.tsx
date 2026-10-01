@@ -4,6 +4,7 @@ import EditPersonPanel from '../components/EditPersonPanel'
 import PersonPanel from '../components/PersonPanel'
 import TreeCanvas from '../components/TreeCanvas'
 import DesignPanel from '../components/DesignPanel'
+import PreviewCanvas from '../components/PreviewCanvas'
 
 import { sampleFamily } from '../data/sampleFamily'
 
@@ -268,12 +269,20 @@ function BuilderPage() {
       </nav>
 
       <section className="builder-workspace">
-        <div className="builder-canvas">
-         <TreeCanvas
-  family={family}
-  onSelectPerson={handleSelectPerson}
-  themeId={family.theme as ThemeId}
-/></div>
+       <div className="builder-canvas">
+  {builderMode === 'preview' ? (
+    <PreviewCanvas
+      family={family}
+      themeId={family.theme as ThemeId}
+    />
+  ) : (
+    <TreeCanvas
+      family={family}
+      onSelectPerson={handleSelectPerson}
+      themeId={family.theme as ThemeId}
+    />
+  )}
+</div>
 
         <aside className="builder-sidebar">
           {builderMode === 'tree' && (
@@ -334,14 +343,14 @@ function BuilderPage() {
 )}
 
           {builderMode === 'preview' && (
-            <div className="sidebar-empty-state">
-              <h2>Preview your design</h2>
-              <p>
-                This is where we’ll prepare the finished
-                tree for export and printing.
-              </p>
-            </div>
-          )}
+  <div className="sidebar-empty-state">
+    <h2>Preview your design</h2>
+    <p>
+      Your finished family tree is shown in the
+      preview area.
+    </p>
+  </div>
+)}
         </aside>
       </section>
 

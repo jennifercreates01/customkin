@@ -8,7 +8,6 @@ export type CustomKinTheme = {
   id: ThemeId
   name: string
   description: string
-
   canvasBackground: string
   cardBackground: string
   cardBorder: string
